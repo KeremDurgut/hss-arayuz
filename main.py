@@ -141,7 +141,6 @@ class CelikkubbeApp(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    # Yeni Eklenen Kod: QSS dosyasını okuyup uygulamaya dahil ediyoruz
     qss_yolu = os.path.join(os.path.dirname(__file__), "style.qss")
     if os.path.exists(qss_yolu):
         with open(qss_yolu, "r", encoding="utf-8") as f:

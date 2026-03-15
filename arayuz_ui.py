@@ -11,8 +11,6 @@ class Ui_CelikkubbeUI(object):
         CelikkubbeUI.resize(1280, 720)
         CelikkubbeUI.setWindowTitle(u"ERGENEKON HSS - TAKTİK KONTROL ARAYÜZÜ")
 
-        # DİKKAT: setStyleSheet satırları tamamen silindi! Tüm tasarım style.qss'ten gelecek.
-
         self.centralwidget = QWidget(CelikkubbeUI)
         self.centralwidget.setObjectName(u"centralwidget")
         self.horizontalLayout = QHBoxLayout(self.centralwidget)
