@@ -146,7 +146,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     # Dosya adını style.qss olarak düzelttik
-    qss_yolu = os.path.join(os.path.dirname(__file__), "style2.qss")
+    qss_yolu = os.path.join(os.path.dirname(__file__), "style3.qss")
     if os.path.exists(qss_yolu):
         with open(qss_yolu, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())
