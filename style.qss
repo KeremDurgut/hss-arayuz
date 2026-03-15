@@ -1,0 +1,100 @@
+/* =======================================================
+   ERGENEKON HSS - KEHRİBAR (AMBER) TEMA - MODERN QSS STİL DOSYASI
+======================================================== */
+
+/* Ana Pencere ve Genel Fontlar */
+QMainWindow { background-color: #0A0800; }
+QWidget { font-family: 'Arial'; font-weight: bold; }
+
+/* Etiketler (Yazılar) */
+QLabel { color: #FFB300; }
+QLabel#lblCalismaModu { font-size: 18px; border: 1px solid #805A00; padding: 8px; border-radius: 4px; }
+QLabel#lblKameraFeed { border: 1px solid #805A00; background-color: #030200; font-size: 24px; color: #FFB300; border-radius: 8px; }
+QLabel#lblSicaklikDeger { font-size: 16px; color: #FFB300; }
+
+/* Grup Kutuları (Çerçeveler) */
+QGroupBox { color: #FFB300; border: 1px solid #805A00; margin-top: 10px; border-radius: 6px; }
+QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px; }
+
+/* =======================================================
+   BUTONLAR (Hafif Yuvarlak Hatlı Modern Tasarım)
+======================================================== */
+QPushButton {
+    background-color: #1A1200;
+    color: #FFB300;
+    border: 1px solid #FFB300;
+    padding: 8px;
+    border-radius: 6px; /* Köşeleri hafif yuvarlatır */
+}
+QPushButton:hover { background-color: #4D3600; }
+QPushButton:disabled { background-color: #111111; color: #555555; border: 1px solid #333333; }
+
+/* Özel Butonlar (ID'ye göre şekillendirme) */
+QPushButton#btnAtes {
+    background-color: #332400;
+    color: #FFB300;
+    border: 3px solid #FFB300;
+    font-size: 16px;
+    padding: 15px;
+    border-radius: 10px; /* Atış butonu biraz daha oval */
+}
+QPushButton#btnAcilDurdur {
+    background-color: #330000;
+    color: #FF3333;
+    border: 3px solid #FF0000;
+    font-size: 18px;
+    font-weight: 900;
+    border-radius: 10px;
+}
+QPushButton#btnAcilDurdur:hover { background-color: #660000; }
+QPushButton#btnYasakliToggle { background-color: #332400; border: 1px dashed #FFB300; }
+QPushButton#btnYasakliToggle:hover { background-color: #4D3600; }
+
+/* Log Paneli ve Metin Kutuları */
+QTextEdit {
+    background-color: #000000;
+    color: #FFB300;
+    border: 1px solid #805A00;
+    font-size: 14px;
+    border-radius: 6px;
+    padding: 5px;
+}
+QLineEdit {
+    background-color: #000000;
+    color: #FFB300;
+    border: 1px solid #FFB300;
+    padding: 3px;
+    border-radius: 4px;
+}
+
+/* Radyo Butonları */
+QRadioButton { color: #FFB300; }
+QRadioButton::indicator { width: 15px; height: 15px; border-radius: 7px; border: 1px solid #FFB300; background-color: #0A0800; }
+QRadioButton::indicator:checked { background-color: #FFB300; }
+
+/* =======================================================
+   ÖZEL MODERN SCROLLBAR (KAYDIRMA ÇUBUĞU) TASARIMI
+======================================================== */
+QScrollBar:vertical {
+    border: none;
+    background: #0A0800; /* Arka planla aynı renk, şeffaf hissi verir */
+    width: 10px; /* Daha ince, modern genişlik */
+    margin: 4px 0 4px 0;
+    border-radius: 5px;
+}
+QScrollBar::handle:vertical {
+    background: #805A00; /* Soluk kehribar */
+    min-height: 30px;
+    border-radius: 5px; /* Tam yuvarlak tutamaç */
+}
+QScrollBar::handle:vertical:hover {
+    background: #FFB300; /* Üzerine gelince parlar */
+}
+/* Alttaki ve üstteki gereksiz okları tamamen gizliyoruz */
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+    background: none;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}

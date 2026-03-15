@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CelikkubbeUI</class>
+ <widget class="QMainWindow" name="CelikkubbeUI">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>720</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Burkay</string>
+  </property>
+  <property name="styleSheet">
+   <string>
+    QMainWindow { background-color: #051005; }
+    QLabel { color: #39FF14; font-family: 'Consolas', 'Courier New'; font-weight: bold; }
+    QGroupBox { color: #39FF14; border: 2px solid #1E5620; margin-top: 10px; font-weight: bold; }
+    QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }
+    QPushButton { background-color: #0A250A; color: #39FF14; border: 1px solid #39FF14; padding: 5px; font-weight: bold; }
+    QPushButton:hover { background-color: #1E5620; }
+    QPushButton#btnAcilDurdur { background-color: #2A0000; color: #FF3333; border: 3px solid #FF0000; font-size: 18px; }
+    QPushButton#btnAcilDurdur:hover { background-color: #550000; }
+    QPushButton#btnAtes { background-color: #39FF14; color: #000000; font-size: 24px; }
+    QPushButton#btnAtes:hover { background-color: #2ECC10; }
+    QComboBox { background-color: #0A250A; color: #39FF14; border: 1px solid #1E5620; }
+   </string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    
+    <item>
+     <widget class="QGroupBox" name="grpKamera">
+      <property name="title"><string>ELEKTRO-OPTİK / RADAR GÖRÜŞÜ</string></property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="lblKameraFeed">
+         <property name="styleSheet"><string>border: 1px dashed #39FF14; background-color: #000000;</string></property>
+         <property name="text"><string align="center">KAMERA SİNYALİ BEKLENİYOR...\n(STANAG 3994 STANDARDI UYUMLU)</string></property>
+         <property name="alignment"><set>Qt::AlignCenter</set></property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+    <item>
+     <widget class="QWidget" name="widgetKontrol" native="true">
+      <property name="maximumSize"><size><width>400</width><height>16777215</height></size></property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       
+       <item>
+        <widget class="QGroupBox" name="grpMod">
+         <property name="title"><string>SİSTEM MODU</string></property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="btnModManuel">
+            <property name="text"><string>MANUEL</string></property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnModOtonom">
+            <property name="text"><string>OTONOM</string></property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+
+       <item>
+        <widget class="QGroupBox" name="grpHedef">
+         <property name="title"><string>HEDEF TESPİT VE SINIFLANDIRMA</string></property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0"><widget class="QLabel" name="lblHedefTipi"><property name="text"><string>Hedef Tipi:</string></property></widget></item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="cbHedefTipi">
+            <item><property name="text"><string>F-16 (Savaş Uçağı)</string></property></item>
+            <item><property name="text"><string>Helikopter</string></property></item>
+            <item><property name="text"><string>Balistik Füze</string></property></item>
+            <item><property name="text"><string>Mini/Micro İHA</string></property></item>
+           </widget>
+          </item>
+          <item row="1" column="0"><widget class="QLabel" name="lblMesafe"><property name="text"><string>Mesafe:</string></property></widget></item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="cbMesafe">
+            <item><property name="text"><string>5 Metre</string></property></item>
+            <item><property name="text"><string>10 Metre</string></property></item>
+            <item><property name="text"><string>15 Metre</string></property></item>
+           </widget>
+          </item>
+          <item row="2" column="0"><widget class="QLabel" name="lblKimlik"><property name="text"><string>Kimlik (MIL-STD-2525D):</string></property></widget></item>
+          <item row="2" column="1"><widget class="QLabel" name="lblKimlikDeger"><property name="text"><string>BİLİNMİYOR</string></property></widget></item>
+         </layout>
+        </widget>
+       </item>
+
+       <item>
+        <spacer name="verticalSpacer"><property name="orientation"><enum>Qt::Vertical</enum></property></spacer>
+       </item>
+
+       <item>
+        <widget class="QPushButton" name="btnAtes">
+         <property name="minimumSize"><size><width>0</width><height>80</height></size></property>
+         <property name="text"><string>ATEŞ / İMHA</string></property>
+        </widget>
+       </item>
+
+       <item>
+        <widget class="QPushButton" name="btnAcilDurdur">
+         <property name="minimumSize"><size><width>0</width><height>80</height></size></property>
+         <property name="text"><string>ACİL DURDUR (E-STOP)</string></property>
+        </widget>
+       </item>
+
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

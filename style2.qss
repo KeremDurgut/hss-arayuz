@@ -1,0 +1,67 @@
+/* =======================================================
+   ERGENEKON HSS - KEHRİBAR (AMBER) TEMA - QSS STİL DOSYASI
+======================================================== */
+
+/* Ana Pencere ve Genel Fontlar */
+QMainWindow { background-color: #0A0800; }
+QWidget { font-family: 'Arial'; font-weight: bold; }
+
+/* Etiketler (Yazılar) */
+QLabel { color: #FFB300; }
+QLabel#lblCalismaModu { font-size: 18px; border: 1px solid #805A00; padding: 8px; }
+QLabel#lblKameraFeed { border: 1px solid #805A00; background-color: #030200; font-size: 24px; color: #FFB300; }
+QLabel#lblSicaklikDeger { font-size: 16px; color: #FFB300; }
+
+/* Grup Kutuları (Çerçeveler) */
+QGroupBox { color: #FFB300; border: 1px solid #805A00; margin-top: 10px; }
+QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }
+
+/* Butonlar */
+QPushButton { background-color: #1A1200; color: #FFB300; border: 1px solid #FFB300; padding: 8px; }
+QPushButton:hover { background-color: #4D3600; }
+QPushButton:disabled { background-color: #111111; color: #555555; border: 1px solid #333333; }
+
+/* Özel Butonlar (ID'ye göre şekillendirme) */
+QPushButton#btnAtes { background-color: #332400; color: #FFB300; border: 3px solid #FFB300; font-size: 16px; padding: 15px; }
+QPushButton#btnAcilDurdur { background-color: #330000; color: #FF3333; border: 3px solid #FF0000; font-size: 18px; font-weight: 900; }
+QPushButton#btnAcilDurdur:hover { background-color: #660000; }
+QPushButton#btnYasakliToggle { background-color: #332400; border: 1px dashed #FFB300; }
+QPushButton#btnYasakliToggle:hover { background-color: #4D3600; }
+
+/* Log Paneli ve Metin Kutuları */
+QTextEdit { background-color: #000000; color: #FFB300; border: 1px solid #805A00; font-size: 14px; }
+QLineEdit { background-color: #000000; color: #FFB300; border: 1px solid #FFB300; padding: 3px; }
+
+/* Radyo Butonları */
+QRadioButton { color: #FFB300; }
+QRadioButton::indicator { width: 15px; height: 15px; border-radius: 7px; border: 1px solid #FFB300; background-color: #0A0800; }
+QRadioButton::indicator:checked { background-color: #FFB300; }
+
+/* =======================================================
+   ÖZEL SCROLLBAR (KAYDIRMA ÇUBUĞU) TASARIMI
+======================================================== */
+QScrollBar:vertical {
+    border: 1px solid #805A00;
+    background: #0A0800;
+    width: 16px;
+    margin: 16px 0 16px 0;
+}
+QScrollBar::handle:vertical {
+    background: #FFB300;
+    min-height: 20px;
+    border-radius: 4px;
+    margin: 2px;
+}
+QScrollBar::handle:vertical:hover { background: #CC8F00; }
+QScrollBar::add-line:vertical {
+    border: 1px solid #805A00; background: #1A1200; height: 14px; subcontrol-position: bottom; subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical {
+    border: 1px solid #805A00; background: #1A1200; height: 14px; subcontrol-position: top; subcontrol-origin: margin;
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    width: 0px; height: 0px; background: none;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
