@@ -55,7 +55,7 @@ QLabel#lblKameraFeed[kameraDurum="hazir"], QLabel#lblKameraFeed {
     background-color: #030200;
     color: #FFB300;
     font-size: 24px;
-    border-radius: 8px;
+    border-radius: 0px;
 }
 QLabel#lblKameraFeed[kameraDurum="estop"] {
     border: 5px solid #FF0000;
@@ -63,7 +63,7 @@ QLabel#lblKameraFeed[kameraDurum="estop"] {
     color: #FF3333;
     font-size: 40px;
     font-weight: bold;
-    border-radius: 8px;
+    border-radius: 0px;
 }
 
 QLabel#lblSicaklikDeger { font-size: 16px; color: #FFB300; }

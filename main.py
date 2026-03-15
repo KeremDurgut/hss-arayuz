@@ -1,9 +1,9 @@
 import sys
 import os
 from datetime import datetime
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QSizePolicy
 from PySide6.QtCore import Slot, Qt
-from PySide6.QtGui import QPixmap  # Görüntüyü label'a basmak için eklendi
+from PySide6.QtGui import QPixmap, QImage # Görüntüyü label'a basmak için eklendi
 
 from arayuz_ui import Ui_CelikkubbeUI
 from kamera_modulu import KameraThread  # Yeni yazdığımız modülü içe aktarıyoruz
@@ -14,6 +14,8 @@ class CelikkubbeApp(QMainWindow):
         super().__init__()
         self.ui = Ui_CelikkubbeUI()
         self.ui.setupUi(self)
+
+        self.ui.lblKameraFeed.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
         self.sistem_kilitli = False
         self.lazer_aktif = False
