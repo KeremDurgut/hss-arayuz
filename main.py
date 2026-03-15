@@ -2,9 +2,11 @@ import sys
 import os
 from datetime import datetime
 from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, Qt
+from PySide6.QtGui import QPixmap  # Görüntüyü label'a basmak için eklendi
 
 from arayuz_ui import Ui_CelikkubbeUI
+from kamera_modulu import KameraThread  # Yeni yazdığımız modülü içe aktarıyoruz
 
 
 class CelikkubbeApp(QMainWindow):
@@ -16,6 +18,13 @@ class CelikkubbeApp(QMainWindow):
         self.sistem_kilitli = False
         self.lazer_aktif = False
         self.fan_aktif = False
+        self.kamera_aktif = False
+
+        # --- KAMERA KURULUMU ---
+        self.kamera_thread = KameraThread(kamera_id=0)
+        self.kamera_thread.kare_yakalandi.connect(self.kamera_guncelle)
+        self.ui.btnKamera.clicked.connect(self.toggle_kamera)
+        # -----------------------
 
         # Buton Bağlantıları
         self.ui.btnAcilDurdur.clicked.connect(self.acil_durdurma)
@@ -43,11 +52,38 @@ class CelikkubbeApp(QMainWindow):
         scrollbar.setValue(scrollbar.maximum())
 
     def led_guncelle(self, led_objesi, durum):
-        # QSS'in değişiklikleri algılaması için property ayarlayıp widget'ı güncelliyoruz
         durum_metni = "aktif" if durum else "pasif"
         led_objesi.setProperty("ledDurum", durum_metni)
         led_objesi.style().unpolish(led_objesi)
         led_objesi.style().polish(led_objesi)
+
+    # ================= YENİ EKLENEN KAMERA METOTLARI =================
+    @Slot(QImage)
+    def kamera_guncelle(self, qt_image):
+        if self.sistem_kilitli: return
+
+        # Kamera modülünden gelen resmi al, label boyutlarına göre (bozmadan) ölçeklendir
+        pixmap = QPixmap.fromImage(qt_image)
+        pixmap = pixmap.scaled(self.ui.lblKameraFeed.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.ui.lblKameraFeed.setPixmap(pixmap)
+
+    @Slot()
+    def toggle_kamera(self):
+        if self.sistem_kilitli: return
+        self.kamera_aktif = not self.kamera_aktif
+
+        if self.kamera_aktif:
+            self.kamera_thread.start()
+            self.ui.btnKamera.setText("KAMERAYI DURDUR")
+            self.log_yaz("[OPTİK] Kamera sensörü devrede.")
+        else:
+            self.kamera_thread.durdur()
+            self.ui.btnKamera.setText("KAMERAYI ÇALIŞTIR")
+            self.ui.lblKameraFeed.clear()
+            self.ui.lblKameraFeed.setText("KAMERA AKIŞI DURDURULDU")
+            self.log_yaz("[OPTİK] Kamera sensörü devredışı bırakıldı.")
+
+    # =================================================================
 
     @Slot()
     def toggle_yasakli_alan(self):
@@ -62,11 +98,13 @@ class CelikkubbeApp(QMainWindow):
         self.ui.btnAtes.setEnabled(True)
         self.ui.btnAcilDurdur.setEnabled(True)
 
-        # Kamera feed durumu QSS ile yönetilecek
         self.ui.lblKameraFeed.setProperty("kameraDurum", "hazir")
         self.ui.lblKameraFeed.style().unpolish(self.ui.lblKameraFeed)
         self.ui.lblKameraFeed.style().polish(self.ui.lblKameraFeed)
-        self.ui.lblKameraFeed.setText("KAMERA AKIŞI AKTİF\nSİSTEM HAZIR")
+
+        # Sistemi başlatınca kamerayı da otomatik aç
+        if not self.kamera_aktif:
+            self.toggle_kamera()
 
         self.led_guncelle(self.ui.lblLedKamera, True)
         self.log_yaz("[SYSTEM] Sistem başlatıldı. Donanım kontrolleri tamam.")
@@ -79,11 +117,19 @@ class CelikkubbeApp(QMainWindow):
         self.led_guncelle(self.ui.lblLedLazer, False)
         self.led_guncelle(self.ui.lblLedFan, False)
         self.led_guncelle(self.ui.lblLedTakip, False)
+        self.led_guncelle(self.ui.lblLedKamera, False)
 
-        # E-Stop durumu QSS ile yönetilecek
+        # Kamerayı arka planda da durdur
+        if self.kamera_aktif:
+            self.kamera_thread.durdur()
+            self.kamera_aktif = False
+            self.ui.btnKamera.setText("KAMERAYI ÇALIŞTIR")
+
         self.ui.lblKameraFeed.setProperty("kameraDurum", "estop")
         self.ui.lblKameraFeed.style().unpolish(self.ui.lblKameraFeed)
         self.ui.lblKameraFeed.style().polish(self.ui.lblKameraFeed)
+
+        self.ui.lblKameraFeed.clear()  # Varsa ekrandaki son kareyi temizle
         self.ui.lblKameraFeed.setText("!!! E-STOP !!!\nSİSTEM KİLİTLİ")
 
         self.log_yaz("[CRITICAL] ACİL DURDURMA BUTONUNA BASILDI! TÜM SİLAH VE MOTOR GÜCÜ KESİLDİ.")
@@ -145,8 +191,7 @@ class CelikkubbeApp(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    # Dosya adını style.qss olarak düzelttik
-    qss_yolu = os.path.join(os.path.dirname(__file__), "style3.qss")
+    qss_yolu = os.path.join(os.path.dirname(__file__), "style.qss")
     if os.path.exists(qss_yolu):
         with open(qss_yolu, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())
