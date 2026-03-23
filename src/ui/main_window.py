@@ -121,7 +121,7 @@ class MainWindow(QMainWindow):
 
         self._add_separator(layout)
 
-        self._camera_label = QLabel("📷 KAMERA: OK")
+        self._camera_label = QLabel("KAMERA: OK")
         self._camera_label.setStyleSheet(
             "color: #33CC33; font-weight: bold; font-size: 13px;"
         )
@@ -158,7 +158,7 @@ class MainWindow(QMainWindow):
 
         # ── Sol QStackedWidget ─────────────────────────
         self._left_stack = QStackedWidget()
-        self._left_stack.setFixedWidth(280)
+        self._left_stack.setFixedWidth(200)
 
         self._stage1_left = Stage1LeftPanel()
         self._stage23_left = Stage23LeftPanel()
@@ -220,7 +220,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(2)
 
         header_layout = QHBoxLayout()
-        log_icon = QLabel("⚠")
+        log_icon = QLabel("[!]")
         log_icon.setStyleSheet("color: #FFCC00; font-size: 16px;")
         header_layout.addWidget(log_icon)
 
@@ -318,8 +318,8 @@ class MainWindow(QMainWindow):
     def _on_fire_command(self):
         """Ateş komutu geldiğinde logla."""
         self._log(
-            "🔥 ATEŞ KOMUTU VERİLDİ — "
-            f"Pan: {self._pan_angle:.1f}° / Tilt: {self._tilt_angle:.1f}°"
+            "[ATES] KOMUTU VERILDI -- "
+            f"Pan: {self._pan_angle:.1f} / Tilt: {self._tilt_angle:.1f}"
         )
 
     @Slot()
