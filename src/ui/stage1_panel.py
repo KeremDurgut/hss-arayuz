@@ -5,10 +5,10 @@ Sol Panel : Hedef angajman seçimi + angajman kuyruğu + görev bilgisi
 Sağ Panel : Taret yönlendirme ok tuşları + ARM/ATEŞ mekanizması
 
 Tasarım Felsefesi (MIL-STD-1472H):
+  - Anlık okuma: Kullanıcı periferik görüşle durumu kavrayabilmeli
   - Sabit düzen: hiçbir widget gizlenmez veya yer değiştirmez
-  - Duruma göre renk kodları: IMHA=kırmızı üstü çizili, AKTIF=amber,
-    BEKLEMEDE=mavi soluk
-  - Alt alanda görev bilgisi: süre, isabet, NFA, sistem hazırlığı
+  - Renk kodları: IMHA=kırmızı, AKTIF=amber, BEKLE=mavi soluk
+  - Her hedef tipi benzersiz renk aksan ile ayrışır
 """
 
 from PySide6.QtWidgets import (
@@ -20,67 +20,78 @@ from PySide6.QtGui import QFont
 
 
 # ── Hedef Durumları ────────────────────────────────────────────────
-TARGET_STATUS_IDLE = "IDLE"           # Henüz seçilmedi
-TARGET_STATUS_DESTROYED = "DESTROYED" # İmha edildi
-TARGET_STATUS_ACTIVE = "ACTIVE"       # Şu an hedeflenen
-TARGET_STATUS_PENDING = "PENDING"     # Sırada bekleyen
+TARGET_STATUS_IDLE = "IDLE"
+TARGET_STATUS_DESTROYED = "DESTROYED"
+TARGET_STATUS_ACTIVE = "ACTIVE"
+TARGET_STATUS_PENDING = "PENDING"
+
+# ── Her hedef tipi için benzersiz aksan rengi ──────────────────────
+TARGET_ACCENTS = {
+    "F16": "#4DA6FF",   # Açık mavi
+    "HEL": "#66CC66",   # Yeşil
+    "IHA": "#CC66FF",   # Mor
+    "BFZ": "#FF8844",   # Turuncu
+}
 
 
 class _EngagementRow(QFrame):
-    """Angajman kuyruğundaki tek bir hedef satırı."""
+    """Angajman kuyruğundaki tek bir hedef satırı — yüksek okunabilirlik."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedHeight(30)
+        self.setFixedHeight(34)
         self._status = TARGET_STATUS_IDLE
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(6, 2, 6, 2)
-        layout.setSpacing(4)
+        layout.setContentsMargins(0, 0, 6, 0)
+        layout.setSpacing(0)
 
-        # Sıra numarası
+        # Sol kenar renk çubuğu (durum göstergesi)
+        self._side_bar = QFrame()
+        self._side_bar.setFixedWidth(4)
+        self._side_bar.setStyleSheet("background-color: #2A2A2A;")
+        layout.addWidget(self._side_bar)
+
+        # İç içerik
+        inner = QHBoxLayout()
+        inner.setContentsMargins(6, 0, 0, 0)
+        inner.setSpacing(6)
+
+        # Sıra numarası (büyük, bold)
         self._order_label = QLabel("--")
-        self._order_label.setFixedWidth(22)
+        self._order_label.setFixedWidth(20)
         self._order_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._order_label.setStyleSheet(
-            "color: #707070; font-size: 11px; font-weight: bold;"
+            "color: #505050; font-size: 13px; font-weight: bold;"
         )
-        layout.addWidget(self._order_label)
-
-        # Durum göstergesi (küçük kare)
-        self._indicator = QLabel()
-        self._indicator.setFixedSize(8, 8)
-        self._indicator.setStyleSheet(
-            "background-color: #3A3A3A; border-radius: 4px;"
-        )
-        layout.addWidget(self._indicator)
+        inner.addWidget(self._order_label)
 
         # Hedef adı
         self._name_label = QLabel("---")
         self._name_label.setStyleSheet(
-            "color: #707070; font-size: 11px;"
+            "color: #505050; font-size: 12px;"
         )
-        layout.addWidget(self._name_label, stretch=1)
+        inner.addWidget(self._name_label, stretch=1)
 
-        # Durum metni
+        # Durum etiketi
         self._status_label = QLabel("")
-        self._status_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self._status_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self._status_label.setFixedWidth(44)
         self._status_label.setStyleSheet(
-            "color: #707070; font-size: 10px;"
+            "color: #505050; font-size: 9px; font-weight: bold;"
         )
-        layout.addWidget(self._status_label)
+        inner.addWidget(self._status_label)
 
+        layout.addLayout(inner, stretch=1)
         self._apply_idle_style()
 
     def set_target(self, order: int, name: str, code: str, status: str):
-        """Satırı hedef bilgisiyle doldur."""
         self._order_label.setText(f"{order}")
-        self._name_label.setText(f"[{code}] {name}")
+        self._name_label.setText(f"{name}")
         self._status = status
-        self._apply_status_style()
+        self._apply_status_style(code)
 
     def clear(self):
-        """Satırı boş duruma döndür."""
         self._order_label.setText("--")
         self._name_label.setText("---")
         self._status_label.setText("")
@@ -89,33 +100,32 @@ class _EngagementRow(QFrame):
 
     def _apply_idle_style(self):
         self.setStyleSheet(
-            "QFrame { background-color: #1E1E1E; border: 1px solid #2A2A2A;"
+            "QFrame { background-color: #1A1A1A; border: 1px solid #252525;"
             " border-radius: 3px; }"
         )
-        self._order_label.setStyleSheet("color: #707070; font-size: 11px; font-weight: bold;")
-        self._name_label.setStyleSheet("color: #707070; font-size: 11px;")
-        self._indicator.setStyleSheet("background-color: #3A3A3A; border-radius: 4px;")
+        self._side_bar.setStyleSheet("background-color: #2A2A2A; border-radius: 0px;")
+        self._order_label.setStyleSheet("color: #505050; font-size: 13px; font-weight: bold;")
+        self._name_label.setStyleSheet("color: #505050; font-size: 12px;")
         self._status_label.setText("")
+        self._status_label.setStyleSheet("color: #505050; font-size: 9px; font-weight: bold;")
 
-    def _apply_status_style(self):
+    def _apply_status_style(self, code: str):
         if self._status == TARGET_STATUS_DESTROYED:
             self.setStyleSheet(
-                "QFrame { background-color: #1A1A1A; border: 1px solid #3A2020;"
+                "QFrame { background-color: #1A1515; border: 1px solid #2A2020;"
                 " border-radius: 3px; }"
             )
+            self._side_bar.setStyleSheet("background-color: #FF3333; border-radius: 0px;")
             self._order_label.setStyleSheet(
-                "color: #663333; font-size: 11px; font-weight: bold;"
+                "color: #553333; font-size: 13px; font-weight: bold;"
                 " text-decoration: line-through;"
             )
             self._name_label.setStyleSheet(
-                "color: #663333; font-size: 11px; text-decoration: line-through;"
-            )
-            self._indicator.setStyleSheet(
-                "background-color: #FF3333; border-radius: 4px;"
+                "color: #553333; font-size: 12px; text-decoration: line-through;"
             )
             self._status_label.setText("IMHA")
             self._status_label.setStyleSheet(
-                "color: #FF3333; font-size: 10px; font-weight: bold;"
+                "color: #FF3333; font-size: 9px; font-weight: bold;"
             )
 
         elif self._status == TARGET_STATUS_ACTIVE:
@@ -123,55 +133,54 @@ class _EngagementRow(QFrame):
                 "QFrame { background-color: #2A2200; border: 2px solid #FFCC00;"
                 " border-radius: 3px; }"
             )
+            self._side_bar.setStyleSheet("background-color: #FFCC00; border-radius: 0px;")
             self._order_label.setStyleSheet(
-                "color: #FFCC00; font-size: 11px; font-weight: bold;"
+                "color: #FFCC00; font-size: 13px; font-weight: bold;"
             )
             self._name_label.setStyleSheet(
-                "color: #FFCC00; font-size: 11px; font-weight: bold;"
-            )
-            self._indicator.setStyleSheet(
-                "background-color: #FFCC00; border-radius: 4px;"
+                "color: #FFCC00; font-size: 12px; font-weight: bold;"
             )
             self._status_label.setText("AKTIF")
             self._status_label.setStyleSheet(
-                "color: #FFCC00; font-size: 10px; font-weight: bold;"
+                "color: #FFCC00; font-size: 9px; font-weight: bold;"
             )
 
         elif self._status == TARGET_STATUS_PENDING:
+            accent = TARGET_ACCENTS.get(code, "#3399FF")
             self.setStyleSheet(
-                "QFrame { background-color: #1A1A2A; border: 1px solid #2A2A4A;"
+                "QFrame { background-color: #181820; border: 1px solid #252535;"
                 " border-radius: 3px; }"
             )
+            self._side_bar.setStyleSheet(f"background-color: {accent}; border-radius: 0px;")
             self._order_label.setStyleSheet(
-                "color: #3399FF; font-size: 11px; font-weight: bold;"
+                f"color: {accent}; font-size: 13px; font-weight: bold;"
             )
             self._name_label.setStyleSheet(
-                "color: #6699CC; font-size: 11px;"
-            )
-            self._indicator.setStyleSheet(
-                "background-color: #3399FF; border-radius: 4px;"
+                "color: #8899AA; font-size: 12px;"
             )
             self._status_label.setText("BEKLE")
             self._status_label.setStyleSheet(
-                "color: #3399FF; font-size: 10px;"
+                "color: #556677; font-size: 9px; font-weight: bold;"
             )
 
 
 class _InfoRow(QFrame):
-    """Görev bilgisi satırı (etiket + değer)."""
+    """Görev bilgisi satırı — etiket : değer."""
 
     def __init__(self, label: str, value: str, color: str = "#A0A0A0", parent=None):
         super().__init__(parent)
-        self.setFixedHeight(24)
+        self.setFixedHeight(22)
         self.setStyleSheet("QFrame { border: none; }")
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(6, 0, 6, 0)
-        layout.setSpacing(4)
+        layout.setContentsMargins(4, 0, 4, 0)
+        layout.setSpacing(0)
 
         lbl = QLabel(label)
-        lbl.setStyleSheet(f"color: #707070; font-size: 10px;")
+        lbl.setStyleSheet("color: #606060; font-size: 10px;")
         layout.addWidget(lbl)
+
+        layout.addStretch()
 
         self._value_label = QLabel(value)
         self._value_label.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -191,8 +200,8 @@ class _InfoRow(QFrame):
 class Stage1LeftPanel(QWidget):
     """
     Aşama 1 — Sol Panel
-    Sabit düzen: Hedef seçim butonları + angajman kuyruğu +
-    görev bilgi paneli. Hiçbir şey gizlenmez, her şey yerinde.
+    Sabit düzen: hedef seçim butonları + angajman kuyruğu +
+    görev bilgi paneli. Anlık okunabilirlik için optimize edilmiş.
     """
 
     MAX_TARGETS = 4
@@ -201,27 +210,6 @@ class Stage1LeftPanel(QWidget):
 
     TARGET_TYPES = ["F-16", "Helikopter", "Mini IHA", "B. Fuze"]
     TARGET_CODES = ["F16", "HEL", "IHA", "BFZ"]
-
-    # Buton stili
-    _STYLE_IDLE = (
-        "QPushButton#targetBtn {"
-        "  background-color: #2A2A4A; color: #3399FF;"
-        "  border: 2px solid #3399FF; border-radius: 4px;"
-        "  font-size: 11px; font-weight: bold; padding: 3px 6px;"
-        "  text-align: left;"
-        "}"
-        "QPushButton#targetBtn:hover {"
-        "  background-color: #33336B; border: 2px solid #66BBFF;"
-        "}"
-    )
-    _STYLE_DISABLED = (
-        "QPushButton#targetBtn {"
-        "  background-color: #1E1E1E; color: #505050;"
-        "  border: 1px solid #2A2A2A; border-radius: 4px;"
-        "  font-size: 11px; padding: 3px 6px;"
-        "  text-align: left;"
-        "}"
-    )
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -232,79 +220,87 @@ class Stage1LeftPanel(QWidget):
 
     def _init_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(4, 4, 4, 4)
-        layout.setSpacing(3)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(4)
 
-        # ── BAŞLIK ─────────────────────────────────────────
+        # ═══════════════════════════════════════════════════
+        #  HEDEF SEÇİM BÖLÜMÜ
+        # ═══════════════════════════════════════════════════
         self._title = QLabel("HEDEF SECIM")
         self._title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._title.setStyleSheet(
             "color: #3399FF; font-size: 11px; font-weight: bold;"
-            "padding: 3px; border-bottom: 1px solid #3A3A3A;"
+            "padding: 2px; border-bottom: 1px solid #3A3A3A;"
         )
         layout.addWidget(self._title)
 
-        # ── HEDEF BUTONLARI (2x2 grid, kompakt) ───────────
-        grid = QGridLayout()
-        grid.setSpacing(3)
+        # 4 hedef butonu — dikey, her biri benzersiz sol aksan ile
         self._target_buttons: list[QPushButton] = []
         for i, (code, name) in enumerate(zip(self.TARGET_CODES, self.TARGET_TYPES)):
-            btn = QPushButton(f"[{code}] {name}")
-            btn.setObjectName("targetBtn")
-            btn.setFixedHeight(30)
-            btn.setStyleSheet(self._STYLE_IDLE)
+            accent = TARGET_ACCENTS.get(code, "#3399FF")
+            btn = QPushButton(f"  {name}")
+            btn.setObjectName(f"targetBtn_{code}")
+            btn.setFixedHeight(32)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setStyleSheet(
+                f"QPushButton#{btn.objectName()} {{"
+                f"  background-color: #222233; color: {accent};"
+                f"  border: 1px solid #333344; border-left: 4px solid {accent};"
+                f"  border-radius: 3px;"
+                f"  font-size: 12px; font-weight: bold; padding: 2px 6px;"
+                f"  text-align: left;"
+                f"}}"
+                f"QPushButton#{btn.objectName()}:hover {{"
+                f"  background-color: #2A2A44; border: 1px solid {accent};"
+                f"  border-left: 4px solid {accent};"
+                f"}}"
+            )
             btn.clicked.connect(
                 lambda checked, idx=i: self._on_target_clicked(idx)
             )
-            grid.addWidget(btn, i // 2, i % 2)
+            layout.addWidget(btn)
             self._target_buttons.append(btn)
-        layout.addLayout(grid)
 
-        # ── ARA ÇIZGI ─────────────────────────────────────
-        sep1 = QFrame()
-        sep1.setFrameShape(QFrame.Shape.HLine)
-        sep1.setStyleSheet("color: #3A3A3A;")
-        sep1.setFixedHeight(1)
-        layout.addWidget(sep1)
+        layout.addSpacing(2)
 
-        # ── ANGAJMAN KUYRUĞU BAŞLIĞI ──────────────────────
+        # ═══════════════════════════════════════════════════
+        #  ANGAJMAN KUYRUĞU
+        # ═══════════════════════════════════════════════════
         queue_header = QLabel("ANGAJMAN KUYRUGU")
         queue_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         queue_header.setStyleSheet(
-            "color: #FFCC00; font-size: 10px; font-weight: bold; padding: 2px;"
+            "color: #FFCC00; font-size: 10px; font-weight: bold;"
+            "padding: 2px; border-top: 1px solid #3A3A3A;"
+            "border-bottom: 1px solid #2A2A2A;"
         )
         layout.addWidget(queue_header)
 
-        # ── ANGAJMAN KUYRUK SATIRLARI (4 adet, sabit) ─────
         self._queue_rows: list[_EngagementRow] = []
         for i in range(self.MAX_TARGETS):
             row = _EngagementRow()
             layout.addWidget(row)
             self._queue_rows.append(row)
 
-        # ── ARA ÇIZGI ─────────────────────────────────────
-        sep2 = QFrame()
-        sep2.setFrameShape(QFrame.Shape.HLine)
-        sep2.setStyleSheet("color: #3A3A3A;")
-        sep2.setFixedHeight(1)
-        layout.addWidget(sep2)
+        layout.addSpacing(2)
 
-        # ── GÖREV BİLGİ PANELİ ────────────────────────────
-        info_header = QLabel("GOREV BILGISI")
+        # ═══════════════════════════════════════════════════
+        #  GÖREV BİLGİ PANELİ
+        # ═══════════════════════════════════════════════════
+        info_header = QLabel("GOREV DURUMU")
         info_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         info_header.setStyleSheet(
-            "color: #707070; font-size: 10px; font-weight: bold; padding: 2px;"
+            "color: #606060; font-size: 10px; font-weight: bold;"
+            "padding: 2px; border-top: 1px solid #3A3A3A;"
         )
         layout.addWidget(info_header)
 
-        self._info_time = _InfoRow("GOREV SURESI", "00:00", "#A0A0A0")
+        self._info_time = _InfoRow("SURE", "00:00", "#A0A0A0")
         layout.addWidget(self._info_time)
 
-        self._info_hit = _InfoRow("ISABET", "0 / 0", "#A0A0A0")
+        self._info_hit = _InfoRow("ISABET", "-- / --", "#707070")
         layout.addWidget(self._info_hit)
 
-        self._info_nfa = _InfoRow("NFA DURUMU", "TEMIZ", "#33CC33")
+        self._info_nfa = _InfoRow("NFA", "TEMIZ", "#33CC33")
         layout.addWidget(self._info_nfa)
 
         self._info_sys = _InfoRow("SENSOR", "HAZIR", "#33CC33")
@@ -313,89 +309,100 @@ class Stage1LeftPanel(QWidget):
         self._info_ammo = _InfoRow("MERMI", "DOLU", "#33CC33")
         layout.addWidget(self._info_ammo)
 
-        # ── Boşluk doldurucu ──────────────────────────────
+        # ═══════════════════════════════════════════════════
+        #  SIFIRLA (en alt, sabit)
+        # ═══════════════════════════════════════════════════
         layout.addStretch(1)
 
-        # ── SIFIRLA butonu (en alt) ───────────────────────
         self._reset_btn = QPushButton("SIFIRLA")
         self._reset_btn.setObjectName("resetBtn")
-        self._reset_btn.setFixedHeight(24)
+        self._reset_btn.setFixedHeight(26)
         self._reset_btn.setStyleSheet(
             "QPushButton#resetBtn {"
-            "  font-size: 10px; padding: 2px 8px;"
-            "  background-color: #2A2A2A; color: #707070;"
-            "  border: 1px solid #3A3A3A; border-radius: 3px;"
+            "  font-size: 10px; padding: 4px 8px;"
+            "  background-color: #222222; color: #606060;"
+            "  border: 1px solid #333333; border-radius: 3px;"
             "}"
             "QPushButton#resetBtn:hover {"
-            "  background-color: #3A3A3A; color: #A0A0A0;"
+            "  background-color: #2A2A2A; color: #A0A0A0;"
+            "  border: 1px solid #555555;"
             "}"
         )
         self._reset_btn.clicked.connect(self._on_reset)
         layout.addWidget(self._reset_btn)
 
-    # ── Görev süresi sayacı (mock) ─────────────────────────
+    # ── Görev sayacı ───────────────────────────────────────
     def _start_mock_mission_timer(self):
         self._timer = QTimer(self)
-        self._timer.timeout.connect(self._tick_mission_time)
+        self._timer.timeout.connect(self._tick)
         self._timer.start(1000)
 
-    def _tick_mission_time(self):
+    def _tick(self):
         self._mission_seconds += 1
-        mins = self._mission_seconds // 60
-        secs = self._mission_seconds % 60
-        self._info_time.set_value(f"{mins:02d}:{secs:02d}", "#A0A0A0")
+        m, s = divmod(self._mission_seconds, 60)
+        self._info_time.set_value(f"{m:02d}:{s:02d}", "#A0A0A0")
 
     # ── Hedef seçim mantığı ────────────────────────────────
-    def _on_target_clicked(self, btn_index: int):
+    def _on_target_clicked(self, idx: int):
         if len(self._target_order) >= self.MAX_TARGETS:
             return
 
-        target_name = self.TARGET_TYPES[btn_index]
-        target_code = self.TARGET_CODES[btn_index]
-        self._target_order.append(target_name)
+        name = self.TARGET_TYPES[idx]
+        code = self.TARGET_CODES[idx]
+        self._target_order.append(name)
 
-        # Butonu devre dışı bırak
-        btn = self._target_buttons[btn_index]
-        btn.setStyleSheet(self._STYLE_DISABLED)
+        # Butonu soluk/devre dışı yap
+        btn = self._target_buttons[idx]
+        btn.setStyleSheet(
+            f"QPushButton#{btn.objectName()} {{"
+            f"  background-color: #1A1A1A; color: #404040;"
+            f"  border: 1px solid #252525; border-left: 4px solid #333333;"
+            f"  border-radius: 3px;"
+            f"  font-size: 12px; padding: 2px 6px;"
+            f"  text-align: left;"
+            f"}}"
+        )
         btn.setEnabled(False)
 
-        # Kuyruğu güncelle
         self._update_queue()
         self.target_order_changed.emit(self._target_order.copy())
 
-        # 4 hedef tamamlandıysa
         if len(self._target_order) >= self.MAX_TARGETS:
             self._finalize_selection()
 
     def _finalize_selection(self):
-        """Tüm butonları kilitle, başlığı güncelle, mock durumları uygula."""
         for btn in self._target_buttons:
             if btn.isEnabled():
-                btn.setStyleSheet(self._STYLE_DISABLED)
+                btn.setStyleSheet(
+                    f"QPushButton#{btn.objectName()} {{"
+                    f"  background-color: #1A1A1A; color: #404040;"
+                    f"  border: 1px solid #252525; border-left: 4px solid #333333;"
+                    f"  border-radius: 3px;"
+                    f"  font-size: 12px; padding: 2px 6px;"
+                    f"  text-align: left;"
+                    f"}}"
+                )
                 btn.setEnabled(False)
 
         self._title.setText("ANGAJMAN AKTIF")
         self._title.setStyleSheet(
             "color: #FFCC00; font-size: 11px; font-weight: bold;"
-            "padding: 3px; border-bottom: 1px solid #FFCC00;"
+            "padding: 2px; border-bottom: 1px solid #FFCC00;"
         )
 
-        # Mock: ilk 2 hedef IMHA, 3. AKTIF, 4. BEKLEMEDE
+        # Mock: ilk 2 IMHA, 3. AKTIF, 4. BEKLE
         self._apply_mock_statuses()
 
     def _update_queue(self):
-        """Kuyruk satırlarını mevcut seçime göre güncelle."""
         for i in range(self.MAX_TARGETS):
             if i < len(self._target_order):
                 name = self._target_order[i]
                 code = self.TARGET_CODES[self.TARGET_TYPES.index(name)]
-                # Seçim aşamasında hepsi PENDING
                 self._queue_rows[i].set_target(i + 1, name, code, TARGET_STATUS_PENDING)
             else:
                 self._queue_rows[i].clear()
 
     def _apply_mock_statuses(self):
-        """Mock: ilk 2 hedef IMHA, 3. AKTIF, son BEKLEMEDE."""
         for i in range(self.MAX_TARGETS):
             if i < len(self._target_order):
                 name = self._target_order[i]
@@ -407,17 +414,29 @@ class Stage1LeftPanel(QWidget):
                 else:
                     status = TARGET_STATUS_PENDING
                 self._queue_rows[i].set_target(i + 1, name, code, status)
-
-        # İsabet bilgisini güncelle
         self._info_hit.set_value("2 / 4", "#FFCC00")
 
     def _on_reset(self):
-        """Tüm seçimi sıfırla."""
         self._target_order.clear()
         self._mission_seconds = 0
 
-        for btn in self._target_buttons:
-            btn.setStyleSheet(self._STYLE_IDLE)
+        for i, btn in enumerate(self._target_buttons):
+            code = self.TARGET_CODES[i]
+            name = self.TARGET_TYPES[i]
+            accent = TARGET_ACCENTS.get(code, "#3399FF")
+            btn.setStyleSheet(
+                f"QPushButton#{btn.objectName()} {{"
+                f"  background-color: #222233; color: {accent};"
+                f"  border: 1px solid #333344; border-left: 4px solid {accent};"
+                f"  border-radius: 3px;"
+                f"  font-size: 12px; font-weight: bold; padding: 2px 6px;"
+                f"  text-align: left;"
+                f"}}"
+                f"QPushButton#{btn.objectName()}:hover {{"
+                f"  background-color: #2A2A44; border: 1px solid {accent};"
+                f"  border-left: 4px solid {accent};"
+                f"}}"
+            )
             btn.setEnabled(True)
 
         for row in self._queue_rows:
@@ -426,11 +445,11 @@ class Stage1LeftPanel(QWidget):
         self._title.setText("HEDEF SECIM")
         self._title.setStyleSheet(
             "color: #3399FF; font-size: 11px; font-weight: bold;"
-            "padding: 3px; border-bottom: 1px solid #3A3A3A;"
+            "padding: 2px; border-bottom: 1px solid #3A3A3A;"
         )
 
         self._info_time.set_value("00:00", "#A0A0A0")
-        self._info_hit.set_value("0 / 0", "#A0A0A0")
+        self._info_hit.set_value("-- / --", "#707070")
         self._info_nfa.set_value("TEMIZ", "#33CC33")
         self._info_sys.set_value("HAZIR", "#33CC33")
         self._info_ammo.set_value("DOLU", "#33CC33")
@@ -461,7 +480,6 @@ class Stage1RightPanel(QWidget):
         layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(8)
 
-        # Başlık
         title = QLabel("TARET KONTROLU")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet(
@@ -470,7 +488,6 @@ class Stage1RightPanel(QWidget):
         )
         layout.addWidget(title)
 
-        # Ok tuşları (D-Pad düzeni)
         arrow_frame = QFrame()
         arrow_layout = QGridLayout(arrow_frame)
         arrow_layout.setSpacing(4)
@@ -503,7 +520,6 @@ class Stage1RightPanel(QWidget):
         layout.addWidget(arrow_frame)
         layout.addSpacing(12)
 
-        # ── Ateşleme Sistemi ───────────────────────────────
         fire_title = QLabel("ATESLEME SISTEMI")
         fire_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         fire_title.setStyleSheet(
@@ -512,20 +528,17 @@ class Stage1RightPanel(QWidget):
         )
         layout.addWidget(fire_title)
 
-        # ARM butonu
         self._arm_btn = QPushButton("[SAFE]  ARM")
         self._arm_btn.setObjectName("armBtn")
         self._arm_btn.clicked.connect(self._on_arm)
         layout.addWidget(self._arm_btn)
 
-        # ATEŞ butonu
         self._fire_btn = QPushButton(">>> ATES <<<")
         self._fire_btn.setObjectName("fireBtn")
         self._fire_btn.setEnabled(False)
         self._fire_btn.clicked.connect(self._on_fire)
         layout.addWidget(self._fire_btn)
 
-        # Durum etiketi
         self._status_label = QLabel("DURUM: GUVENLI")
         self._status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._status_label.setStyleSheet(

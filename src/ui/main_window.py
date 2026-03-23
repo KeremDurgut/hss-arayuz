@@ -158,7 +158,7 @@ class MainWindow(QMainWindow):
 
         # ── Sol QStackedWidget ─────────────────────────
         self._left_stack = QStackedWidget()
-        self._left_stack.setFixedWidth(200)
+        self._left_stack.setFixedWidth(220)
 
         self._stage1_left = Stage1LeftPanel()
         self._stage23_left = Stage23LeftPanel()
