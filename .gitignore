@@ -1,0 +1,45 @@
+# Çelikkubbe HMI Projesi - Git Ignore Dosyası
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Sanal Ortamlar (Virtual Environments)
+.venv/
+venv/
+env/
+ENV/
+.env/
+
+# IDE ve Editör Dosyaları
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# İşletim Sistemi (OS) Dosyaları
+.DS_Store
+Thumbs.db
+
+# PySide6 / PyQt Üretilmiş Dosyalar (Derlenmiş UI ve Kaynak dosyaları)
+# (Şu an kullanılmıyor olsa da ileride Qt Designer kullanılırsa diye)
+ui_*.py
+rc_*.py
+*_rc.py
+
+# Dağıtım ve Paketleme (İleride derlenecekse)
+build/
+dist/
+*.egg-info/
+*.spec
+
+# Test ve Kapsam Dosyaları
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Log ve Yerel Ayar Dosyaları
+*.log
+local_settings.py
